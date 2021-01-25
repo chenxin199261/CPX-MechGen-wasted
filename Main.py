@@ -1,21 +1,23 @@
 from tools import *
-
+import copy
 
 debug =  True 
-
-
-
 def trackBlocks(fnames,trackList):
     Rstep = []
+    speRec = []
+    tempList=[]    
     istep = 1
     step  = 1
     bnd_cri = 1.6  # Criterion for bond linkage
+
+    # 1. read xyz data in
     for fname in fnames:
         with  open(fname,'r') as f:
             if (istep == 1):
                 # First Record:
                 Natom = int(f.readline())
-                atomList = [0]*Natom # BuildUpAtomList
+                atomList = [0]*Natom # BuildUpAtomListi
+                temGrpRec= [[0]*2 for i in range(Natom)] 
                 f.readline()
                 for i in range(Natom):
                     line = f.readline().split()
@@ -38,7 +40,14 @@ def trackBlocks(fnames,trackList):
                     blockList[Molid-1][1] = list(rec)
                     Molid = Molid+1
                 BlockInfoUpdate(blockList,atomList)
-                speRec = []
+                #===  Build Templist  ===
+                for rec in blockList:
+                    for iatm in rec[1]:
+                        temGrpRec[iatm-1][0] = rec[0]
+                        temGrpRec[iatm-1][1] = rec[3]
+                AtmList_temp = copy.deepcopy(temGrpRec)
+                tempList.append(AtmList_temp)
+                #========================
                 p = specCount(blockList,trackList)
                 speRec.append(p)
                 Rstep.append(5*istep*10**(-7))
@@ -66,14 +75,202 @@ def trackBlocks(fnames,trackList):
                         blockList[Molid-1][1] =list(rec)
                         Molid = Molid+1
                     BlockInfoUpdate(blockList,atomList)
+                    #===  Build Templist  ===
+                    for rec in blockList:
+                        for iatm in rec[1]:
+                            temGrpRec[iatm-1][0] = rec[0]
+                            temGrpRec[iatm-1][1] = rec[3]
+                    AtmList_temp = copy.deepcopy(temGrpRec)
+                    tempList.append(AtmList_temp)
+                    #========================
                     p=specCount(blockList,trackList)
                     if (debug): print(p)
                     Rstep.append(5*istep*10**(-7))
                     speRec.append(p)
                 istep = 1+istep
-    return([])
+        f.close()
+    # 2. Print species records
+    Ft = open("spec-rev.data","w")
+    for rec in speRec:
+        for ele in rec:
+            Ft.write('{0:<6d}'.format(ele))
+        Ft.write('\n')
+    Ft.close()
+        
+    return(tempList)
+
+def reactionGen(totRec):
+    chgRec_raw = []
+    reac_rec_tot = []
+    for rec in  range(len(totRec)-1):
+        chgRec_rec_stp=[]
+        reac_rec = []
+        # Build Raw change list
+        for atm in range(len(totRec[0])):
+            if(abs(totRec[rec+1][atm][1]-totRec[rec][atm][1]) > 0.00001):
+                chg = [[totRec[rec][atm][0],totRec[rec+1][atm][0]],\
+                       [totRec[rec][atm][1],totRec[rec+1][atm][1]],\
+                       atm+1,rec+2]
+                chgRec_rec_stp.append(chg)
+        chgRec_raw.append(chgRec_rec_stp)
+        # Build Rection information
+        unique_blk_rec_R=[]
+        unique_blk_rec_P=[]
+        react_pair=[]
+        for chg_rec in chgRec_rec_stp:
+        # Unique Block number
+            if chg_rec[0][0] not in unique_blk_rec_R:
+                unique_blk_rec_R.append(chg_rec[0][0])
+            if chg_rec[0][1] not in unique_blk_rec_P:
+                unique_blk_rec_P.append(chg_rec[0][1])
+            react_tup = tuple(chg_rec[0])
+            if react_tup not in react_pair: 
+                react_pair.append(react_tup)
+        # R_list=
+        if (len(unique_blk_rec_R)>0):
+       #    print("=========")
+       #    for r in chgRec_rec_stp:
+       #        print(r)
+       #    print(unique_blk_rec_R,"R")    
+       #    print(unique_blk_rec_P,"P")
+       #    print(react_pair)
+            # Build Hash-dict
+            Hashdict_R={}
+            Hashdict_P={}
+            for iblk in unique_blk_rec_R:
+                atmList = []
+                grp_num = 0
+                for atmrec in chgRec_rec_stp:
+                    if atmrec[0][0] == iblk:
+                        grp_num = atmrec[1][0]
+                        atmList.append(atmrec[2])
+                atmList.sort()
+                atmList.append(atmrec[1][0])
+                ls = [str(i) for i in atmList]
+                HashT  = abs(hash("".join(ls)))
+                if grp_dic.get(round(grp_num,5)) is None:
+                    grp_label=round(grp_num,5)
+                else:
+                    grp_label=grp_dic[round(grp_num,5)]
+                Hashdict_R[iblk] = [HashT,grp_label]
 
 
+            for iblk in unique_blk_rec_P:
+                atmList = []
+                grp_num = 0
+                for atmrec in chgRec_rec_stp:
+                    if atmrec[0][1] == iblk:
+                        grp_num = atmrec[1][1]
+                        atmList.append(atmrec[2])
+                atmList.sort()
+                atmList.append(atmrec[1][1])
+                ls = [str(i) for i in atmList]
+                HashT  = abs(hash("".join(ls)))
+                if grp_dic.get(round(grp_num,5)) is None:
+                    grp_label=round(grp_num,5)
+                else:
+                    grp_label=grp_dic[round(grp_num,5)]
+                Hashdict_P[iblk] = [HashT,grp_label]
+
+            tup_lst_hash = []
+            # Trans form reaction pair
+            for i in unique_blk_rec_R:
+                T_rec = [tuple([i]),tuple([])\
+                         ,(),(),(),(),"F",0,0]
+                for j in react_pair:
+                    if(j[0] == i):
+                        T_rec[1] = T_rec[1] + tuple([j[1]])
+         #       print(T_rec)
+                tup_lst_hash.append(T_rec)
+            remove_list =[]
+            for i in unique_blk_rec_P:
+                T_rec = [tuple([]),tuple([i])\
+                         ,(),(),(),(),"F",0,0]
+                for j in react_pair:
+                    if(j[1] == i):
+                        T_rec[0] = T_rec[0] + tuple([j[0]])
+                        if(len(T_rec[0]) == 2):
+                            T_rec[6] ="S" 
+                            tup_lst_hash.append(T_rec)
+                            remove_list.append(T_rec[0][0])
+                            remove_list.append(T_rec[0][1])
+       #         print("removelist:",remove_list)
+                ## Delete redundant.
+                remove_tag=[]
+            for i in remove_list:
+                for rec in tup_lst_hash:
+                    if (len(rec[0])==1 and rec[0][0]==i):
+                        remove_tag.append(rec)
+            for i in remove_tag:
+                tup_lst_hash.remove(i)
+
+            # Build reaction type and hash
+            for i in tup_lst_hash:
+                for r in i[0]:
+                    i[2] = tuple([Hashdict_R[r][0]]) + i[2]
+                    i[4] = tuple([Hashdict_R[r][1]]) + i[4]
+                for p in i[1]:
+                    i[3] = tuple([Hashdict_P[p][0]]) + i[3]
+                    i[5] = tuple([Hashdict_P[p][1]]) + i[5]
+                if(len(i[0]) >=2 ):
+                    i[6] = "C"
+                    i[7] = chgRec_rec_stp[0][-1]
+                    i[8] = i[2][0]+i[2][1]
+                if(len(i[1]) >=2 ):
+                    i[6] = "S"
+                    i[7] = chgRec_rec_stp[0][-1]
+                    i[8] = i[3][0]+i[3][1]
+                if(len(i[1]) ==1 and len(i[0]) ==1):
+                    i[6] = "T"
+                    i[7] = chgRec_rec_stp[0][-1]
+            reac_rec_tot.append(tup_lst_hash)
+
+
+          #  for i in tup_lst_hash:
+          #      print(i)
+    flag = 0
+
+    Ft = open("reactionGraph.data","w")
+    Ft.write("digraph G{\n")
+    # Print linkage
+    for i in reac_rec_tot:
+        for rec in i:
+            if (rec[6] =="C"):
+                for num in range(len(rec[0])):
+                    # Add to hash-label:
+                    Hast_label[rec[2][num]] = [str(rec[4][num]),rec[7]]
+                    Hast_label[rec[3][0]] =   [str(rec[5][0]),  rec[7]]
+                    #reacLabel= ' [' +'label="'+ str(rec[4][num])+' , '+str(rec[5][0])+'"]'
+                    Ft.write("  "+ str(rec[2][num])+" -> "+str(rec[3][0]) +" [color=red];\n")
+            if (rec[6] =="S"):
+                for num in range(len(rec[1])):
+                    Hast_label[rec[2][0]] =   [str(rec[4][0]),  rec[7]]
+                    Hast_label[rec[3][num]] = [str(rec[5][num]),rec[7]]
+                    #reacLabel= ' [' +'label="'+ str(rec[4][0])+' , '+str(rec[5][num])+'"]'
+                    Ft.write("  "+ str(rec[2][0])+" -> "+str(rec[3][num]) +"[color=blue];\n")
+            if (rec[6] =="T"):
+                Hast_label[rec[2][0]] = [str(rec[4][0]),rec[7]]
+                Hast_label[rec[3][0]] = [str(rec[5][0]),rec[7]]
+                #reacLabel= ' [' +'label="'+ str(rec[4][0])+' , '+str(rec[5][0])+'"]'
+                Ft.write("  "+ str(rec[2][0])+" -> "+str(rec[3][0]) +" [color=grey];\n")
+    # Print node infomation
+    for key in Hast_label:
+        Ft.write(" " + str(key) +" "+'[label="' + Hast_label[key][0] +'"];\n ')
+
+    Ft.write("}")
+    Ft.close()
+    reac_rec_tot_dump = copy.deepcopy(reac_rec_tot)
+    # Remove junk reactions
+    for i in range(len(reac_rec_tot)):
+        print(reac_rec_tot[i])
+
+    for i in reac_rec_tot_dump:
+        print("=========")
+        for rec in i:
+            print(rec)
+
+    print(Hast_label)
+    print("Removed reaction list")
 
 
 if __name__ == "__main__":
@@ -97,7 +294,10 @@ if __name__ == "__main__":
                    atomRec[i] for atom i is [blknum,grp_id]
 
     """
-    fnames = ["./examples/hello5.xyz",
-              "./examples/hello6.xyz"]
-    trackList =["MMH","NO2","N2","a","b","c","e","f"]
+#   fnames = ["./examples/hello5.xyz",
+#             "./examples/hello6.xyz"]
+    fnames = ["./examples/test-2.xyz"]
+#    trackList =["MMH","NO2","N2","a","b","c","e","f"]
+    trackList =["methane","oxygen",".OOH",".CH3"]
     tempList1 = trackBlocks(fnames,trackList)
+    reactionGen(tempList1)
