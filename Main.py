@@ -1,7 +1,13 @@
 from tools import *
+import json
+import pickle
 import copy
+debug =  True
+analy_mode = 3 # 1.raw xyz data to results 
+               # 2.raw xyz data to tempRec
+               # 3.temRecs to results
 
-debug =  True 
+
 def trackBlocks(fnames,trackList):
     Rstep = []
     speRec = []
@@ -96,7 +102,12 @@ def trackBlocks(fnames,trackList):
             Ft.write('{0:<6d}'.format(ele))
         Ft.write('\n')
     Ft.close()
-        
+    # 3. Save tempList to file
+    if(analy_mode != 1):
+        Ft = open("file.txt", 'wb')
+        pickle.dump(tempList, Ft)
+        Ft.close()
+        tempList=[]
     return(tempList)
 
 def reactionGen(totRec):
@@ -128,12 +139,6 @@ def reactionGen(totRec):
                 react_pair.append(react_tup)
         # R_list=
         if (len(unique_blk_rec_R)>0):
-       #    print("=========")
-       #    for r in chgRec_rec_stp:
-       #        print(r)
-       #    print(unique_blk_rec_R,"R")    
-       #    print(unique_blk_rec_P,"P")
-       #    print(react_pair)
             # Build Hash-dict
             Hashdict_R={}
             Hashdict_P={}
@@ -145,15 +150,14 @@ def reactionGen(totRec):
                         grp_num = atmrec[1][0]
                         atmList.append(atmrec[2])
                 atmList.sort()
-                atmList.append(atmrec[1][0])
+                atmList.append(grp_num)
                 ls = [str(i) for i in atmList]
-                HashT  = abs(hash("".join(ls)))
+                HashT  = abs( hash("".join(ls)) )
                 if grp_dic.get(round(grp_num,5)) is None:
                     grp_label=round(grp_num,5)
                 else:
                     grp_label=grp_dic[round(grp_num,5)]
                 Hashdict_R[iblk] = [HashT,grp_label]
-
 
             for iblk in unique_blk_rec_P:
                 atmList = []
@@ -163,9 +167,9 @@ def reactionGen(totRec):
                         grp_num = atmrec[1][1]
                         atmList.append(atmrec[2])
                 atmList.sort()
-                atmList.append(atmrec[1][1])
+                atmList.append(grp_num)
                 ls = [str(i) for i in atmList]
-                HashT  = abs(hash("".join(ls)))
+                HashT  = abs( hash("".join(ls)) )
                 if grp_dic.get(round(grp_num,5)) is None:
                     grp_label=round(grp_num,5)
                 else:
@@ -238,21 +242,21 @@ def reactionGen(totRec):
             if (rec[6] =="C"):
                 for num in range(len(rec[0])):
                     # Add to hash-label:
+                    lableStr=' [label="' + str(rec[7]) +'"]'
                     Hast_label[rec[2][num]] = [str(rec[4][num]),rec[7]]
                     Hast_label[rec[3][0]] =   [str(rec[5][0]),  rec[7]]
-                    #reacLabel= ' [' +'label="'+ str(rec[4][num])+' , '+str(rec[5][0])+'"]'
-                    Ft.write("  "+ str(rec[2][num])+" -> "+str(rec[3][0]) +" [color=red];\n")
+                    Ft.write("  "+ str(rec[2][num])+" -> "+str(rec[3][0]) +lableStr +" [color=red];\n")
             if (rec[6] =="S"):
                 for num in range(len(rec[1])):
+                    lableStr=' [label="' + str(rec[7]) +'"]'
                     Hast_label[rec[2][0]] =   [str(rec[4][0]),  rec[7]]
                     Hast_label[rec[3][num]] = [str(rec[5][num]),rec[7]]
-                    #reacLabel= ' [' +'label="'+ str(rec[4][0])+' , '+str(rec[5][num])+'"]'
-                    Ft.write("  "+ str(rec[2][0])+" -> "+str(rec[3][num]) +"[color=blue];\n")
+                    Ft.write("  "+ str(rec[2][0])+" -> "+str(rec[3][num]) +lableStr +"[color=blue];\n")
             if (rec[6] =="T"):
                 Hast_label[rec[2][0]] = [str(rec[4][0]),rec[7]]
                 Hast_label[rec[3][0]] = [str(rec[5][0]),rec[7]]
-                #reacLabel= ' [' +'label="'+ str(rec[4][0])+' , '+str(rec[5][0])+'"]'
-                Ft.write("  "+ str(rec[2][0])+" -> "+str(rec[3][0]) +" [color=grey];\n")
+                lableStr=' [label="' + str(rec[7]) +'"]'
+                Ft.write("  "+ str(rec[2][0])+" -> "+str(rec[3][0]) +lableStr +" [color=grey];\n")
     # Print node infomation
     for key in Hast_label:
         Ft.write(" " + str(key) +" "+'[label="' + Hast_label[key][0] +'"];\n ')
@@ -261,13 +265,13 @@ def reactionGen(totRec):
     Ft.close()
     reac_rec_tot_dump = copy.deepcopy(reac_rec_tot)
     # Remove junk reactions
-    for i in range(len(reac_rec_tot)):
-        print(reac_rec_tot[i])
+   #for i in range(len(reac_rec_tot)):
+   #    print(reac_rec_tot[i])
 
-    for i in reac_rec_tot_dump:
-        print("=========")
-        for rec in i:
-            print(rec)
+   #for i in reac_rec_tot_dump:
+   #    print("=========")
+   #    for rec in i:
+   #        print(rec)
 
     print(Hast_label)
     print("Removed reaction list")
@@ -296,8 +300,21 @@ if __name__ == "__main__":
     """
 #   fnames = ["./examples/hello5.xyz",
 #             "./examples/hello6.xyz"]
-    fnames = ["./examples/test-2.xyz"]
+#    fnames = ["./examples/test-2.xyz"]
 #    trackList =["MMH","NO2","N2","a","b","c","e","f"]
+#    ftempnames=["file1.txt","file2.txt"]
+    ftempnames=["file.txt"]
     trackList =["methane","oxygen",".OOH",".CH3"]
-    tempList1 = trackBlocks(fnames,trackList)
-    reactionGen(tempList1)
+
+
+# +++++++++++++++++++++++++++++++++++++++++++++++++++
+    if (analy_mode == 2 or analy_mode == 1):
+        tempList1 = trackBlocks(fnames,trackList)
+    if (analy_mode == 3):
+        tempList1=[]
+        for ftname in ftempnames:
+            with open(ftname, 'rb') as f:
+                tl = pickle.load(f)
+                tempList1.extend(tl)
+    if(analy_mode !=2 ):
+        reactionGen(tempList1)
