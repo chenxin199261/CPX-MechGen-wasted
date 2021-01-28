@@ -113,6 +113,7 @@ def trackBlocks(fnames,trackList):
 def reactionGen(totRec):
     chgRec_raw = []
     reac_rec_tot = []
+    Ft_chk = open("hash_CheckList","w")
     for rec in  range(len(totRec)-1):
         chgRec_rec_stp=[]
         reac_rec = []
@@ -138,6 +139,7 @@ def reactionGen(totRec):
             if react_tup not in react_pair: 
                 react_pair.append(react_tup)
         # R_list=
+        # Print hast checkList
         if (len(unique_blk_rec_R)>0):
             # Build Hash-dict
             Hashdict_R={}
@@ -158,6 +160,7 @@ def reactionGen(totRec):
                 else:
                     grp_label=grp_dic[round(grp_num,5)]
                 Hashdict_R[iblk] = [HashT,grp_label]
+                Ft_chk.write(str(HashT)+": ["+" ".join(ls[0:-1])+"]\n")
 
             for iblk in unique_blk_rec_P:
                 atmList = []
@@ -175,7 +178,8 @@ def reactionGen(totRec):
                 else:
                     grp_label=grp_dic[round(grp_num,5)]
                 Hashdict_P[iblk] = [HashT,grp_label]
-
+                Ft_chk.write(str(HashT)+": ["+" ".join(ls[0:-1])+"]\n")
+            
             tup_lst_hash = []
             # Trans form reaction pair
             for i in unique_blk_rec_R:
@@ -184,7 +188,6 @@ def reactionGen(totRec):
                 for j in react_pair:
                     if(j[0] == i):
                         T_rec[1] = T_rec[1] + tuple([j[1]])
-         #       print(T_rec)
                 tup_lst_hash.append(T_rec)
             remove_list =[]
             for i in unique_blk_rec_P:
@@ -198,12 +201,11 @@ def reactionGen(totRec):
                             tup_lst_hash.append(T_rec)
                             remove_list.append(T_rec[0][0])
                             remove_list.append(T_rec[0][1])
-       #         print("removelist:",remove_list)
                 ## Delete redundant.
                 remove_tag=[]
             for i in remove_list:
                 for rec in tup_lst_hash:
-                    if (len(rec[0])==1 and rec[0][0]==i):
+                    if (len(rec[0])==1 and rec[0][0]==i and (rec not in remove_tag)):
                         remove_tag.append(rec)
             for i in remove_tag:
                 tup_lst_hash.remove(i)
@@ -263,6 +265,9 @@ def reactionGen(totRec):
 
     Ft.write("}")
     Ft.close()
+
+
+
     reac_rec_tot_dump = copy.deepcopy(reac_rec_tot)
     # Remove junk reactions
    #for i in range(len(reac_rec_tot)):
@@ -274,7 +279,6 @@ def reactionGen(totRec):
    #        print(rec)
 
     print(Hast_label)
-    print("Removed reaction list")
 
 
 if __name__ == "__main__":
