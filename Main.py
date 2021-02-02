@@ -3,7 +3,7 @@ import json
 import pickle
 import copy
 debug =  True
-analy_mode = 3 # 1.raw xyz data to results 
+analy_mode = 1 # 1.raw xyz data to results 
                # 2.raw xyz data to tempRec
                # 3.temRecs to results
 
@@ -54,7 +54,9 @@ def trackBlocks(fnames,trackList):
                 AtmList_temp = copy.deepcopy(temGrpRec)
                 tempList.append(AtmList_temp)
                 #========================
-                p = specCount(blockList,trackList)
+                p = [istep]
+                p.extend(specCount(blockList,trackList))
+                print(p)
                 speRec.append(p)
                 Rstep.append(5*istep*10**(-7))
             while True:
@@ -89,7 +91,8 @@ def trackBlocks(fnames,trackList):
                     AtmList_temp = copy.deepcopy(temGrpRec)
                     tempList.append(AtmList_temp)
                     #========================
-                    p=specCount(blockList,trackList)
+                    p = [istep]
+                    p.extend(specCount(blockList,trackList))
                     if (debug): print(p)
                     Rstep.append(5*istep*10**(-7))
                     speRec.append(p)
@@ -97,6 +100,7 @@ def trackBlocks(fnames,trackList):
         f.close()
     # 2. Print species records
     Ft = open("spec-rev.data","w")
+    Ft.write(str(istep)+"\n")
     for rec in speRec:
         for ele in rec:
             Ft.write('{0:<6d}'.format(ele))
@@ -304,7 +308,7 @@ if __name__ == "__main__":
     """
 #   fnames = ["./examples/hello5.xyz",
 #             "./examples/hello6.xyz"]
-#    fnames = ["./examples/test-2.xyz"]
+    fnames = ["./examples/test-2.xyz"]
 #    trackList =["MMH","NO2","N2","a","b","c","e","f"]
 #    ftempnames=["file1.txt","file2.txt"]
     ftempnames=["file.txt"]
