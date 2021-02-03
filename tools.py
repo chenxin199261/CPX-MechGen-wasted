@@ -10,7 +10,7 @@ from __future__ import (
 
 # Third-party libraries
 import numpy as np
-
+import math
 class groupSplit(object):
     """Union-find disjoint sets datastructure.
 
@@ -425,8 +425,6 @@ def buildNeigh(atomList,cri):
                 atomList[i][2].append(j)
                 atomList[j][2].append(i)
     return atomList
-    
-
 
 def buildLinkMat(atomList,cri):
     dim = len(atomList)
@@ -469,8 +467,12 @@ def BlockInfoUpdate(BlockList,atomList):
             j = j+1
         mat = np.array(buildLinkMatSub(atomListSub,1.6))
         rec[2]=atomListSub 
-        rec[3]=(np.linalg.det(mat))**0.5
+        rec[3]=abs(np.linalg.det(mat))**0.5
+       #if(math.isnan(rec[3])):
+       #    print("nananananan")
+       #    rec[3]= 777.777
         rec[4]=MolCenter(atomListSub)
+
 def SearchblockbyID(ID,blockList):
     n = len(blockList)
     first = 0

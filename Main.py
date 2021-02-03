@@ -3,7 +3,7 @@ import json
 import pickle
 import copy
 debug =  True
-analy_mode = 1 # 1.raw xyz data to results 
+analy_mode = 3 # 1.raw xyz data to results 
                # 2.raw xyz data to tempRec
                # 3.temRecs to results
 
@@ -123,6 +123,12 @@ def reactionGen(totRec):
         reac_rec = []
         # Build Raw change list
         for atm in range(len(totRec[0])):
+            if(abs(totRec[rec+1][atm][1]-1417.40938) < 0.00001):
+                print ("warning!P:",rec+1,totRec[rec+1][atm][1],totRec[rec+1][atm][0])
+                print ("warning!R:",rec,totRec[rec][atm][1],totRec[rec][atm][0])
+            if(abs(totRec[rec][atm][1]-1417.40938) < 0.00001):
+                print ("warning!R:",rec+1,totRec[rec][atm][1],totRec[rec][atm][0])
+            
             if(abs(totRec[rec+1][atm][1]-totRec[rec][atm][1]) > 0.00001):
                 chg = [[totRec[rec][atm][0],totRec[rec+1][atm][0]],\
                        [totRec[rec][atm][1],totRec[rec+1][atm][1]],\
@@ -142,9 +148,21 @@ def reactionGen(totRec):
             react_tup = tuple(chg_rec[0])
             if react_tup not in react_pair: 
                 react_pair.append(react_tup)
-        # R_list=
+
+
         # Print hast checkList
         if (len(unique_blk_rec_R)>0):
+            print(str(rec+2)+"  ========== \nchgRec_rec_stp:")
+            for Rec_t in chgRec_rec_stp:
+                print(Rec_t)
+            print( "unique_blk_rec_RP:")
+            for Rec_t in unique_blk_rec_R:
+                print("R:",Rec_t)
+            for Rec_t in unique_blk_rec_P:
+                print("P:",Rec_t)
+            for Rec_t in react_pair:
+                print("react_pair:",Rec_t)
+
             # Build Hash-dict
             Hashdict_R={}
             Hashdict_P={}
@@ -266,7 +284,6 @@ def reactionGen(totRec):
     # Print node infomation
     for key in Hast_label:
         Ft.write(" " + str(key) +" "+'[label="' + Hast_label[key][0] +'"];\n ')
-
     Ft.write("}")
     Ft.close()
 
@@ -282,7 +299,6 @@ def reactionGen(totRec):
    #    for rec in i:
    #        print(rec)
 
-    print(Hast_label)
 
 
 if __name__ == "__main__":
@@ -309,9 +325,19 @@ if __name__ == "__main__":
 #   fnames = ["./examples/hello5.xyz",
 #             "./examples/hello6.xyz"]
     fnames = ["./examples/test-2.xyz"]
+    ftempnames=["file1.txt",  
+                "file2.txt",  
+                "file3.txt",  
+                "file4.txt",  
+                "file5.txt",  
+                "file6.txt",  
+                "file7.txt",  
+                "file8.txt",  
+                "file9.txt",  
+                "file10.txt"] 
+
 #    trackList =["MMH","NO2","N2","a","b","c","e","f"]
 #    ftempnames=["file1.txt","file2.txt"]
-    ftempnames=["file.txt"]
     trackList =["methane","oxygen",".OOH",".CH3"]
 
 
