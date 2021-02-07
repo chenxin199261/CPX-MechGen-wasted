@@ -56,7 +56,6 @@ def trackBlocks(fnames,trackList):
                 #========================
                 p = [istep]
                 p.extend(specCount(blockList,trackList))
-                print(p)
                 speRec.append(p)
                 Rstep.append(5*istep*10**(-7))
             while True:
@@ -123,12 +122,6 @@ def reactionGen(totRec):
         reac_rec = []
         # Build Raw change list
         for atm in range(len(totRec[0])):
-            if(abs(totRec[rec+1][atm][1]-1417.40938) < 0.00001):
-                print ("warning!P:",rec+1,totRec[rec+1][atm][1],totRec[rec+1][atm][0])
-                print ("warning!R:",rec,totRec[rec][atm][1],totRec[rec][atm][0])
-            if(abs(totRec[rec][atm][1]-1417.40938) < 0.00001):
-                print ("warning!R:",rec+1,totRec[rec][atm][1],totRec[rec][atm][0])
-            
             if(abs(totRec[rec+1][atm][1]-totRec[rec][atm][1]) > 0.00001):
                 chg = [[totRec[rec][atm][0],totRec[rec+1][atm][0]],\
                        [totRec[rec][atm][1],totRec[rec+1][atm][1]],\
@@ -152,16 +145,6 @@ def reactionGen(totRec):
 
         # Print hast checkList
         if (len(unique_blk_rec_R)>0):
-            print(str(rec+2)+"  ========== \nchgRec_rec_stp:")
-            for Rec_t in chgRec_rec_stp:
-                print(Rec_t)
-            print( "unique_blk_rec_RP:")
-            for Rec_t in unique_blk_rec_R:
-                print("R:",Rec_t)
-            for Rec_t in unique_blk_rec_P:
-                print("P:",Rec_t)
-            for Rec_t in react_pair:
-                print("react_pair:",Rec_t)
 
             # Build Hash-dict
             Hashdict_R={}
@@ -174,13 +157,16 @@ def reactionGen(totRec):
                         grp_num = atmrec[1][0]
                         atmList.append(atmrec[2])
                 atmList.sort()
-                atmList.append(grp_num)
+                atmList.append(round(grp_num,6))
                 ls = [str(i) for i in atmList]
                 HashT  = abs( hash("".join(ls)) )
-                if grp_dic.get(round(grp_num,5)) is None:
-                    grp_label=round(grp_num,5)
-                else:
-                    grp_label=grp_dic[round(grp_num,5)]
+                for key in GroupRec_dict:                    
+                    if abs(GroupRec_dict[key]-grp_num)<0.001:
+                        grp_label=key                        
+                        break                                
+                    else:                                    
+                        grp_label=round(grp_num,6)           
+
                 Hashdict_R[iblk] = [HashT,grp_label]
                 Ft_chk.write(str(HashT)+": ["+" ".join(ls[0:-1])+"]\n")
 
@@ -192,13 +178,15 @@ def reactionGen(totRec):
                         grp_num = atmrec[1][1]
                         atmList.append(atmrec[2])
                 atmList.sort()
-                atmList.append(grp_num)
+                atmList.append(round(grp_num,6))
                 ls = [str(i) for i in atmList]
                 HashT  = abs( hash("".join(ls)) )
-                if grp_dic.get(round(grp_num,5)) is None:
-                    grp_label=round(grp_num,5)
-                else:
-                    grp_label=grp_dic[round(grp_num,5)]
+                for key in GroupRec_dict:                    
+                    if abs(GroupRec_dict[key]-grp_num)<0.001:
+                        grp_label=key                        
+                        break                                
+                    else:                                    
+                        grp_label=round(grp_num,6)           
                 Hashdict_P[iblk] = [HashT,grp_label]
                 Ft_chk.write(str(HashT)+": ["+" ".join(ls[0:-1])+"]\n")
             
