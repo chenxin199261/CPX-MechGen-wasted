@@ -6,11 +6,10 @@ Discover reaction mechanism from complex reaction network.
 -Email       : chenxin199261@gmail.com
 -Create Date : 2021/2/4 
 -Inputs:
-    1. Multiple spec-rev*.data  fill their paths in variable 'fnames'.
+    1. Multiple ReacGraph.data  fill their paths in variable 'fnames'.
 
 -Outputs:
     1. recordFile  : step, #of species.
-
 """
 
 import os
@@ -35,11 +34,6 @@ def analy_specs(files):
         print(i)
 
     print(totstep_file)
-
-
-
-
-
 
 if __name__ == "__main__":
     fnames=[  "spec-rev1.data",  
