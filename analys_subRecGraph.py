@@ -123,19 +123,19 @@ def removeVib(G):
     return G
 
 def anaSubgraph(fname):
-  # G = nx.drawing.nx_pydot.read_dot("reactionGraph.data")
-  # write_dot(G, "ConvertTotal.dot")
-  # ## 1. Divide graph into subgraph
-  # sub_set = nx.weakly_connected_components(G)
-  # subG = []
-  # for nset in sub_set:
-  #     subG.append(G.subgraph(list(nset)))
-  #  # 1.1 save subgraph into file
-  # Num = 0
-  # for rec in subG:
-  #     name = "./subgraph/Ori_"+str(Num)+".dot"
-  #     write_dot(rec,name)
-  #     Num = Num+1
+#   G = nx.drawing.nx_pydot.read_dot("reactionGraph.data")
+#   write_dot(G, "ConvertTotal.dot")
+#   ## 1. Divide graph into subgraph
+#   sub_set = nx.weakly_connected_components(G)
+#   subG = []
+#   for nset in sub_set:
+#       subG.append(G.subgraph(list(nset)))
+#    # 1.1 save subgraph into file
+#   Num = 0
+#   for rec in subG:
+#       name = "./subgraph/Ori_"+str(Num)+".dot"
+#       write_dot(rec,name)
+#       Num = Num+1
     Num = 0
     for coun in range(0,354):
         name = "./subgraph/Ori_"+str(Num)+".dot"
