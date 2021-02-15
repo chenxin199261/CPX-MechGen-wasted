@@ -18,6 +18,13 @@ Discover reaction mechanism from complex reaction network.
 
 import os
 import networkx as nx
+from datetime import datetime
+
+def printTimeStamp(tag):
+    now = datetime.now()
+    current_time = now.strftime("%H:%M:%S")
+    print("Current Time =", current_time," at :",tag)
+
 
 # and the following code block is not needed
 # but we want to see which module is used and
@@ -35,11 +42,10 @@ except ImportError:
 #========
 #  Tools
 #========
-def searchIsoEdges(G,node):
+
+def searchIsoEdges(G,node,colorRec,labelRec):
     color = 0 # 0:grey,1:others
     InOut = [] # ismaxlabel out-arrow ?
-    colorRec = nx.get_edge_attributes(G, "color")
-    labelRec = nx.get_edge_attributes(G, "label")
     # search Inarrow
     deg = [0,0]
     stepRec=[]
@@ -62,7 +68,7 @@ def searchIsoEdges(G,node):
     # search Outarrow
     return color,InOut,stepRec,link,deg
     
-def getIsoNodes(G):
+def getIsoNodes(G,cR,lR):
     NodeList = []
     nodes=nx.nodes(G)
     print(len(nodes))
@@ -70,16 +76,21 @@ def getIsoNodes(G):
     for node in nodes:
         nNeighbor = len(set(nx.all_neighbors(G,node)))
         if nNeighbor == 1:
-            color,outArrow,maxV,link,deg=searchIsoEdges(G,node)
+            color,outArrow,maxV,link,deg=searchIsoEdges(G,node,cR,lR)
             NodeList.append([node,color,outArrow,maxV,link,deg])
     return NodeList
 
 def removeVib(G):
     ## 1. Remove non-reactive vibrations
      # 1.1 remove inner-molecular interaction (Gray)
-    listN = getIsoNodes(G)
+    printTimeStamp("2.1.0")
+    colorRec = nx.get_edge_attributes(G, "color")
+    labelRec = nx.get_edge_attributes(G, "label")
+    listN = getIsoNodes(G,colorRec,labelRec)
     for isoNode in listN:
+        printTimeStamp("2.1.1")
         edgesRec = G.edges(isoNode[0])
+        printTimeStamp("2.1.2")
         if(isoNode[1]==0 and isoNode[5][0]==isoNode[5][1]):
             for i in range(len(isoNode[2])):
                 keep_node= True
@@ -89,15 +100,19 @@ def removeVib(G):
                         break
                 if(keep_node):
                     break
+            printTimeStamp("2.1.3")
     
             if(keep_node):
                 pass
             else:
                 print("removed gray: ",isoNode)
+                printTimeStamp("2.1.4")
                 G.remove_node(isoNode[0])
+                printTimeStamp("2.1.5")
     ## 2 remove conjuncted Red/blue vibrations
      # 2.1 find conjuntion nodes
-    listN = getIsoNodes(G)
+    listN = getIsoNodes(G,colorRec,labelRec)
+    printTimeStamp("2.1.6")
     conj_pair=[]
     for i in range(len(listN)-1):
         for j in range(i+1,len(listN)):
@@ -105,6 +120,7 @@ def removeVib(G):
                 print(listN[i],"++",i,j)
                 print(listN[i][5],listN[j][5],"--",i,j)
                 conj_pair.append((i,j))
+    printTimeStamp("2.1.7")
     print(conj_pair)
     # 2.2 Remove conjuntion nodes
     removed = []
@@ -120,6 +136,7 @@ def removeVib(G):
                 if (listN[j][0] not in removed):
                     G.remove_node(listN[j][0])
                     removed.append(listN[j][0])
+    printTimeStamp("2.1.8")
     return G
 
 def anaSubgraph(fname):
@@ -138,11 +155,14 @@ def anaSubgraph(fname):
 #       Num = Num+1
     Num = 0
     for coun in range(0,354):
+        printTimeStamp("1")
         name = "./subgraph/Ori_"+str(Num)+".dot"
         print(name+"  :1")
         name2 = "./subgraph/Rev_"+str(Num)+".dot"
         rec = nx.drawing.nx_pydot.read_dot(name)
+        printTimeStamp("2")
         recV = removeVib(rec)
+        printTimeStamp("3")
         write_dot(recV,name2)
         Num = Num+1
     
