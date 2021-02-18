@@ -83,14 +83,15 @@ def getIsoNodes(G,cR,lR):
 def removeVib(G):
     ## 1. Remove non-reactive vibrations
      # 1.1 remove inner-molecular interaction (Gray)
-    printTimeStamp("2.1.0")
+    #printTimeStamp("2.1.0")
     colorRec = nx.get_edge_attributes(G, "color")
     labelRec = nx.get_edge_attributes(G, "label")
     listN = getIsoNodes(G,colorRec,labelRec)
+    print(len(listN))
     for isoNode in listN:
-        printTimeStamp("2.1.1")
+        #printTimeStamp("2.1.1")
         edgesRec = G.edges(isoNode[0])
-        printTimeStamp("2.1.2")
+        #printTimeStamp("2.1.2")
         if(isoNode[1]==0 and isoNode[5][0]==isoNode[5][1]):
             for i in range(len(isoNode[2])):
                 keep_node= True
@@ -100,34 +101,34 @@ def removeVib(G):
                         break
                 if(keep_node):
                     break
-            printTimeStamp("2.1.3")
+            #printTimeStamp("2.1.3")
     
             if(keep_node):
                 pass
             else:
-                print("removed gray: ",isoNode)
-                printTimeStamp("2.1.4")
+                #print("removed gray: ",isoNode)
+                #printTimeStamp("2.1.4")
                 G.remove_node(isoNode[0])
-                printTimeStamp("2.1.5")
+                #printTimeStamp("2.1.5")
     ## 2 remove conjuncted Red/blue vibrations
      # 2.1 find conjuntion nodes
     listN = getIsoNodes(G,colorRec,labelRec)
-    printTimeStamp("2.1.6")
+    #printTimeStamp("2.1.6")
     conj_pair=[]
     for i in range(len(listN)-1):
         for j in range(i+1,len(listN)):
             if(listN[i][3] == listN[j][3] and listN[i][5][0]==listN[i][5][1]):
-                print(listN[i],"++",i,j)
-                print(listN[i][5],listN[j][5],"--",i,j)
+                #print(listN[i],"++",i,j)
+                #print(listN[i][5],listN[j][5],"--",i,j)
                 conj_pair.append((i,j))
-    printTimeStamp("2.1.7")
-    print(conj_pair)
+    #printTimeStamp("2.1.7")
+    #print(conj_pair)
     # 2.2 Remove conjuntion nodes
     removed = []
     for ele in conj_pair:
         i = ele[0]
         j = ele[1]
-        print(i,j,"for check")
+        #print(i,j,"for check")
         if( len(listN[i][3]) > 1):
             if(abs(listN[i][3][0] - listN[i][3][1]) < 5 ):
                 if (listN[i][0] not in removed):
@@ -136,8 +137,10 @@ def removeVib(G):
                 if (listN[j][0] not in removed):
                     G.remove_node(listN[j][0])
                     removed.append(listN[j][0])
-    printTimeStamp("2.1.8")
-    return G
+    #printTimeStamp("2.1.8")
+    listN = getIsoNodes(G,colorRec,labelRec)
+    
+    return G,len(listN)
 
 def anaSubgraph(fname):
 #   G = nx.drawing.nx_pydot.read_dot("reactionGraph.data")
@@ -161,7 +164,14 @@ def anaSubgraph(fname):
         name2 = "./subgraph/Rev_"+str(Num)+".dot"
         rec = nx.drawing.nx_pydot.read_dot(name)
         printTimeStamp("2")
-        recV = removeVib(rec)
+        # Remove useless rebundant reactions
+        niso = 10
+        niso_p = 1000
+        while(niso_p-niso > 0):
+            niso_p = niso
+            print(niso,"   -NISO")
+            recV,niso = removeVib(rec)
+
         printTimeStamp("3")
         write_dot(recV,name2)
         Num = Num+1
