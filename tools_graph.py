@@ -92,3 +92,111 @@ def removeVib(G):
                     removed.append(listN[j][0])
     listN = getIsoNodes(G,colorRec,labelRec)
     return G,len(listN)
+
+
+#==================
+#  Tools (edges+nodes)
+#==================
+
+def Sort(sub_li,iplace): 
+  
+    # reverse = None (Sorts in Ascending order) 
+    # key is set to sort using second element of  
+    # sublist lambda has been used 
+    sub_li.sort(key = lambda x: x[iplace]) 
+    return sub_li 
+
+def findConjEdges(NodesRec):
+    totRec=[]
+    for node in NodesRec:
+        # Inedges:
+        nodeConjRec = [node[0]]
+        inTemp=[]
+        for i in range(len(node[4])-1):
+            for j in range(i+1,len(node[4])):
+                #print(i,j,node[4])
+                if(node[4][i][1] == node[4][j][1] ):
+                    RecTemp = [node[4][i][0],node[4][j][0],node[4][i][3],node[4][j][3],node[4][j][1]]
+                    inTemp.append(RecTemp)
+                    break
+        nodeConjRec.append(inTemp)
+                    
+        # Outedges:
+        outTemp=[]
+        for i in range(len(node[5])-1):
+            for j in range(i+1,len(node[5])):
+                #print(i,j,node[4])
+                if( node[5][i][1] == node[5][j][1] ):
+                    RecTemp = [node[5][i][0],node[5][j][0],node[5][i][3],node[5][j][3],node[5][j][1]]
+                    outTemp.append(RecTemp)
+                    break
+        nodeConjRec.append(outTemp)
+                    
+        totRec.append(nodeConjRec)
+    return(totRec) 
+
+def getNodeInfo(G):
+    nodesRec = G.nodes()
+    TotRec = []
+    Nodedic = nx.get_node_attributes(G,'label')
+    for inode in nodesRec:
+        NodeRec = [inode,0,0,0]
+        NodeRec[1] =  Nodedic[inode]
+        NodeRec[2] =  G.in_degree(inode)
+        NodeRec[3] =  G.out_degree(inode)
+        edges = list(dict.fromkeys(G.in_edges(inode)))
+        
+        InedgeRec = []
+        for iedge in edges:
+            get = G.get_edge_data(iedge[0],iedge[1])
+            for key in get:
+                InedgeRec.append([iedge[0],int(get[key]['label'].strip('\"' )),get[key]['color'],int(key)])
+        NodeRec.append(Sort(InedgeRec,1))
+                
+        edges = list(dict.fromkeys(G.out_edges(inode)))
+        OutedgeRec = []
+        for iedge in edges:
+            get = G.get_edge_data(iedge[0],iedge[1])
+            for key in get:
+                OutedgeRec.append([iedge[1],int(get[key]['label'].strip('\"' )),get[key]['color'],int(key)])
+        NodeRec.append(Sort(OutedgeRec,1))
+        TotRec.append(NodeRec)
+    return(TotRec)
+
+def removeConjEdges(G,conjRec):
+    for node in conjRec:
+        if(len(node[1]) > 0 and len(node[2]) > 0 ):
+            for rec1 in node[1]:
+                removeTag = False
+                for rec2 in node[2]:
+                    # In and Out ConjEdges coupled together. 
+                    if(rec1[0] in rec2 and rec1[1] in rec2 and abs(rec1[4]-rec2[4])<40):
+                        print(rec1,rec2)
+                        #remove edge from:
+                        try:
+                            G.remove_edge(rec1[0],node[0],key=str(rec1[2]))
+                        except:
+                            pass
+
+                        try:
+                            G.remove_edge(rec1[1],node[0],key=str(rec1[3]))
+                        except:
+                            pass
+                        
+                        try:
+                            G.remove_edge(node[0],rec2[0],key=str(rec2[2]))
+                        except:
+                            pass
+
+                        try:
+                            G.remove_edge(node[0],rec2[1],key=str(rec2[3]))
+                        except:
+                            pass
+                        removeTag = True
+                        break
+                if removeTag:
+                    node[2].remove(rec2)
+
+
+
+
