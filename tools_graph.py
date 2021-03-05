@@ -60,7 +60,7 @@ def removeVib(G):
             for i in range(len(isoNode[2])):
                 keep_node= True
                 for j in range(len(isoNode[2])):
-                    if( abs(isoNode[3][i]-isoNode[3][j])<5 and isoNode[2][i] !=isoNode[2][j]):
+                    if( abs(isoNode[3][i]-isoNode[3][j])< 40 and isoNode[2][i] !=isoNode[2][j]):
                         keep_node= False
                         break
                 if(keep_node):
@@ -83,7 +83,7 @@ def removeVib(G):
         i = ele[0]
         j = ele[1]
         if( len(listN[i][3]) > 1):
-            if(abs(listN[i][3][0] - listN[i][3][1]) < 5 ):
+            if(abs(listN[i][3][0] - listN[i][3][1]) < 40 ):
                 if (listN[i][0] not in removed):
                     G.remove_node(listN[i][0])
                     removed.append(listN[i][0])

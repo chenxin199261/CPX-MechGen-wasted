@@ -25,52 +25,32 @@ from tools_graph import *
 #def rmRedEdgNodes(fname):
 
 
-def anaSubgraph(fname):
-    G = nx.drawing.nx_pydot.read_dot("reactionGraph.data")
-    write_dot(G, "ConvertTotal.dot")
-    ## 1. Divide graph into subgraph
-    sub_set = nx.weakly_connected_components(G)
-    subG = []
-    for nset in sub_set:
-        subG.append(G.subgraph(list(nset)))
-     # 1.1 save subgraph into file
-    Num = 0
-    for rec in subG:
-        name = "./subgraph/Ori_"+str(Num)+".dot"
-        write_dot(rec,name)
-        Num = Num+1
-    Num = 0
-    for coun in range(0,len(subG)-1):
-        printTimeStamp("1")
-        name = "./subgraph/Ori_"+str(Num)+".dot"
-        print(name+"  :1")
-        name2 = "./subgraph/Rev_"+str(Num)+".dot"
-        rec = nx.drawing.nx_pydot.read_dot(name)
-        printTimeStamp("2")
-        # Remove useless rebundant reactions
-        niso = 1
-        niso_p = 0
-        while(abs(niso_p-niso) != 0):
-            print("niso_p,niso111",niso_p,niso)
-            niso_p = niso
-            recV,niso = removeVib(rec)
-            print(niso,"   -NISO")
-            print("niso_p,niso222",niso_p,niso)
-
-        printTimeStamp("3")
-        write_dot(recV,name2)
-        Num = Num+1
-        return subG 
+def rmIso(G):
+    # Remove useless rebundant reactions
+    niso = 1
+    niso_p = 0
+    printTimeStamp("2")
+    while(abs(niso_p-niso) != 0):
+        niso_p = niso
+        recV,niso = removeVib(G)
+        print(niso,"   -NISO")
+    printTimeStamp("1")
+    return G 
 
 def rmParaEdges(G):
+    print(G)
     totRec  = getNodeInfo(G)
     conjRec = findConjEdges(totRec)
     print("#####$$$$$$$$$$#####")
     removeConjEdges(G,conjRec)
+    return G
     
 if __name__ == "__main__":
     fname="reactionGraph.data"   
-    #subG = anaSubgraph(fname) 
-    #print(len(subG))
-    G = nx.drawing.nx_pydot.read_dot("./subgraph/Rev_0.dot")
-    rmParaEdges(G)
+    #fname="./subgraph/Ori_1.dot"   
+    # Read dot File
+    G = nx.drawing.nx_pydot.read_dot(fname)
+    write_dot(G, "ConvertTotal.dot")
+    G = rmParaEdges(G)
+    G = rmIso(G) 
+    write_dot(G,"./Rev_graph.dot")
