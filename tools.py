@@ -566,7 +566,6 @@ def specCount(blockList,trackList):
     return(Rec)
 
 
-
 if __name__ == "__main__":
     atomList = [['H',[0,0,0]],['H',[0,0,1]],['H',[5,0,0]],['H',[4,0,0]]]
     level = 2.3
