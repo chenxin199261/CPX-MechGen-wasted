@@ -10,7 +10,7 @@ from __future__ import (
 
 # Third-party libraries
 import numpy as np
-import math
+
 class groupSplit(object):
     """Union-find disjoint sets datastructure.
 
@@ -362,7 +362,7 @@ ELEMENTS_dict = {
         'E115' :115, 'E116' :116, 'E117' :117, 'E118' :118 }
 
 radii_dict = {
-        'H': 0.32,    'C': 0.67,   'N':  0.65,   'O':  0.57
+        'H': 0.4,    'C': 0.67,   'N':  0.65,   'O':  0.57
 }
 
 mass_dict = {
@@ -375,76 +375,105 @@ Inter_dict ={"(OOH)2":241.00875,
              "CH3+O2": 48.57280,
              "(CH3)2":  9.25338}
 
-Trans_dict =    {"methane": 2.88153,"OH."  : 3.88934,"CH3OH" : 11.78743,"MMH"    :38.22148,
-                 "oxygen" :15.96772,"H2"   : 0.12674,"CH2OH" : 12.37290, "CH3-N-NH2":39.51493,
-                 "CH3NHNH" :39.61882,"CH3NNH": 40.95882,"NO2":59.60995,"HONO":57.95407,
+Trans_dict =    {"methane": 2.88153,"OH."  : 3.88934,"CH3OH" : 11.78743,"MMH"    :38.22148,     
+                 "oxygen" :15.96772,"H2"   : 0.12674,"CH2OH" : 12.37290, "CH3-N-NH2":39.51493,  
+                 "CH3NHNH" :39.61882,"CH3NNH": 40.95882,"NO2":59.60995,"HONO":57.95407,       
                  "N2":13.97126,"HNO2":57.66979,
-                 ".OOH"   :15.52446,"HCO"  :13.29264,"C2H4"  : 10.13715,"O+O"    : 15.99900,
-                 ".CH3"   : 3.04194,"O=CH2":12.72717,"CH3OO.": 48.40383,"O3-lin" : 63.74350,
-                 "water"  : 3.77359,"H"    : 1.00399,".OOH"  : 15.52446,"O3-tri" : 63.63360,
-                 "CO2"    :55.15826,"O"    : 3.99987,"CH3OOH": 47.06011,"CH3CH3" :  9.19653,
-                 "CO"     :13.82621,"HCOOH":51.54219,"HOCH"  : 12.92288,"HOOH"   : 15.09337,
-                 "CH3ONO"  :191.0259164,  "CH3NO2":180.60540827,  "CH2-NN-NH":41.589125,
+                 ".OOH"   :15.52446,"HCO"  :13.29264,"C2H4"  : 10.13715,"O+O"    : 15.99900, 
+                 ".CH3"   : 3.04194,"O=CH2":12.72717,"CH3OO.": 48.40383,"O3-lin" : 63.74350, 
+                 "water"  : 3.77359,"H"    : 1.00399,".OOH"  : 15.52446,"O3-tri" : 63.63360, 
+                 "CO2"    :55.15826,"O"    : 3.99987,"CH3OOH": 47.06011,"CH3CH3" :  9.19653, 
+                 "CO"     :13.82621,"HCOOH":51.54219,"HOCH"  : 12.92288,"HOOH"   : 15.09337, 
+                 "CH3ONO"  :191.0259164,  "CH3NO2":180.60540827,  "CH2-NH-NH":41.589125,     
                  "CH2=N-NH2":41.478809,
-                 "NH3": 3.361201,"CH2-NH" : 11.516598,
-                 "CH2-N" :  11.903213,"CH3-O.": 12.125209,
+                 "NH3": 3.361201,"CH2-NH" : 11.516598,".NH2":3.4951406,
+                 "CH2-N" :  11.903213,"CH3-O.": 12.125209,"CH-NH":12.029067,
                  "HCN" : 12.432577,"N-NH2" : 13.041992,
                  "NH-NH": 13.080274,"N-NH": 13.518529,
                  "NH2O": 13.943739,"N+N": 13.971258,
-                 "ONH": 14.452812,"N+O":14.936465,
+                 "ONH": 14.452812,"NO":14.936465,"CH3-NH2-NH2":36.859530,
                  "CH2-NH-NH2":40.122307,"CH3-NH-N": 40.946319,"CH-NH-NH2":41.907775,
                  "CH2=N-NH2(3)": 41.329115,"NH-CH2-NH": 41.452186,"CH2-N-NH":42.851207,
                  "CH3NN(2)":42.185077,"CH3NN":42.330582,
                  "CH2=N-NH2(2)":42.994458,"CH2-N-N": 44.434385,"CH-N-NH2":43.323556,
                  "CH-N-NH": 44.906605,"CH3-NO":45.255115,"CH-NN":46.410566,
                  "CH2-NO":47.504253,"HN-CO": 49.917573,
-                 "HONO-ts": 54.236561,"NNO": 55.757821,"NO2-v1":59.509149,
+                 "HONO-ts": 54.236561,"NNO": 55.757821,
                  "OH-NH-O":56.067167,"CH3-CH2-NH-NH": 125.805874,
                  "CH3-NN-CH3":128.254585,"CH3-NH-NO":163.412291,
                  "CH3-NO-NH":163.452963,"CH2OH-N-NH": 166.659613,"CH3-NH-NH-OH":153.693835,
                  "CHO-NH-NH2": 167.146396,"CH2-N-NOH": 171.556713,"CH3-NH-NHO":158.087044,
                  "CH2-NO2": 189.581673,"HNO3": 231.286441,".CH2O-NH-NH2":159.979330,"CH2ONO":189.669736,
                  "CH3-NH-NH-CHO": 523.184031,"CH3-N(NH2)-NO": 588.679275,"CH3-NH-NH-NO": 590.122697,
-                 "MMH-v":38.07003,"MMH-NO2":2200.18899,"MMH-NO2-v1":2200.605753} 
-GroupRec_dict = {"methane": 2.88153,"OH."  : 3.88934,"CH3OH" : 11.78743,"MMH"    :38.22148,
-                 "oxygen" :15.96772,"H2"   : 0.12674,"CH2OH" : 12.37290, "CH3-N-NH2":39.51493,
-                 "CH3NHNH" :39.61882,"CH3NNH": 40.95882,"NO2":59.60995,"HONO":57.95407,
+                 "MMH-v":38.07003,"MMH-NO2":2200.18899,  
+                 "CH3NNH+NO2":2358.265928,"CH3NHN+NO2":2357.494194,
+                 "CH3NNH2+NO2":2274.648196," CH3NNH2+NO2-v2":2262.494389,
+                 "MMH+NO2-v2":2200.605754,"MMH+NO2-v3":2188.432582,
+                 "CH3NHNH+NO2":2281.110467,"CH3NHNH+NO2-v2":2281.060382,
+                 "CH3NHNH+NO2-v3":2268.940923}  
+
+
+
+GroupRec_dict = {"methane": 2.88153,"OH."  : 3.88934,"CH3OH" : 11.78743,"MMH"    :38.22148,     
+                 "oxygen" :15.96772,"H2"   : 0.12674,"CH2OH" : 12.37290, "CH3-N-NH2":39.51493,  
+                 "CH3NHNH" :39.61882,"CH3NNH": 40.95882,"NO2":59.60995,"HONO":57.95407,       
                  "N2":13.97126,"HNO2":57.66979,
-                 ".OOH"   :15.52446,"HCO"  :13.29264,"C2H4"  : 10.13715,"O+O"    : 15.99900,
-                 ".CH3"   : 3.04194,"O=CH2":12.72717,"CH3OO.": 48.40383,"O3-lin" : 63.74350,
-                 "water"  : 3.77359,"H"    : 1.00399,".OOH"  : 15.52446,"O3-tri" : 63.63360,
-                 "CO2"    :55.15826,"O"    : 3.99987,"CH3OOH": 47.06011,"CH3CH3" :  9.19653,
-                 "CO"     :13.82621,"HCOOH":51.54219,"HOCH"  : 12.92288,"HOOH"   : 15.09337,
-                 "CH3ONO"  :191.0259164,  "CH3NO2":180.60540827,  "CH2-NN-NH":41.589125,
+                 ".OOH"   :15.52446,"HCO"  :13.29264,"C2H4"  : 10.13715,"O+O"    : 15.99900, 
+                 ".CH3"   : 3.04194,"O=CH2":12.72717,"CH3OO.": 48.40383,"O3-lin" : 63.74350, 
+                 "water"  : 3.77359,"H"    : 1.00399,".OOH"  : 15.52446,"O3-tri" : 63.63360, 
+                 "CO2"    :55.15826,"O"    : 3.99987,"CH3OOH": 47.06011,"CH3CH3" :  9.19653, 
+                 "CO"     :13.82621,"HCOOH":51.54219,"HOCH"  : 12.92288,"HOOH"   : 15.09337, 
+                 "CH3ONO"  :191.0259164,  "CH3NO2":180.60540827,  "CH2-NH-NH":41.589125,     
                  "CH2=N-NH2":41.478809,
-                 "NH3": 3.361201,"CH2-NH" : 11.516598,
-                 "CH2-N" :  11.903213,"CH3-O.": 12.125209,
+                 "NH3": 3.361201,"CH2-NH" : 11.516598,".NH2":3.4951406,
+                 "CH2-N" :  11.903213,"CH3-O.": 12.125209,"CH-NH":12.029067,
                  "HCN" : 12.432577,"N-NH2" : 13.041992,
                  "NH-NH": 13.080274,"N-NH": 13.518529,
                  "NH2O": 13.943739,"N+N": 13.971258,
-                 "ONH": 14.452812,"N+O":14.936465,
+                 "ONH": 14.452812,"NO":14.936465,"CH3-NH2-NH2":36.859530,
                  "CH2-NH-NH2":40.122307,"CH3-NH-N": 40.946319,"CH-NH-NH2":41.907775,
                  "CH2=N-NH2(3)": 41.329115,"NH-CH2-NH": 41.452186,"CH2-N-NH":42.851207,
                  "CH3NN(2)":42.185077,"CH3NN":42.330582,
                  "CH2=N-NH2(2)":42.994458,"CH2-N-N": 44.434385,"CH-N-NH2":43.323556,
                  "CH-N-NH": 44.906605,"CH3-NO":45.255115,"CH-NN":46.410566,
                  "CH2-NO":47.504253,"HN-CO": 49.917573,
-                 "HONO-ts": 54.236561,"NNO": 55.757821,"NO2-v1":59.509149,
+                 "HONO-ts": 54.236561,"NNO": 55.757821,
                  "OH-NH-O":56.067167,"CH3-CH2-NH-NH": 125.805874,
                  "CH3-NN-CH3":128.254585,"CH3-NH-NO":163.412291,
                  "CH3-NO-NH":163.452963,"CH2OH-N-NH": 166.659613,"CH3-NH-NH-OH":153.693835,
                  "CHO-NH-NH2": 167.146396,"CH2-N-NOH": 171.556713,"CH3-NH-NHO":158.087044,
                  "CH2-NO2": 189.581673,"HNO3": 231.286441,".CH2O-NH-NH2":159.979330,"CH2ONO":189.669736,
                  "CH3-NH-NH-CHO": 523.184031,"CH3-N(NH2)-NO": 588.679275,"CH3-NH-NH-NO": 590.122697,
-                 "MMH-v":38.07003,"MMH-NO2":2200.18899,"MMH-NO2-v1":2200.605753} 
+                 "MMH-v":38.07003,"MMH-NO2":2200.18899,
+                 "CH3NNH+NO2":2358.265928,"CH3NHN+NO2":2357.494194,
+                 "CH3NNH2+NO2":2274.648196," CH3NNH2+NO2-v2":2262.494389,
+                 "MMH+NO2-v2":2200.605754,"MMH+NO2-v3":2188.432582,
+                 "CH3NHNH+NO2":2281.110467,"CH3NHNH+NO2-v2":2281.060382,
+                 "CH3NHNH+NO2-v3":2268.940923}  
+
 
 Hast_label= {}
 
-
 grp_dic = dict(zip(GroupRec_dict.values(), GroupRec_dict.keys())) 
 
+
+# Error
 def calcDist(atom1,atom2):
     dist = (atom1[1][0]-atom2[1][0])**2+(atom1[1][1]-atom2[1][1])**2+(atom1[1][2]-atom2[1][2])**2
+    return dist**0.5 
+
+def calcDistL(atom1,atom2,L):
+    dx = atom1[1][0]-atom2[1][0]
+    dy = atom1[1][1]-atom2[1][1]
+    dz = atom1[1][2]-atom2[1][2]
+    if(dx > L/2.0):
+        dx = L-dx
+    if(dy > L/2.0):
+        dy = L-dy
+    if(dz > L/2.0):
+        dz = L-dz
+
+    dist = dx**2 + dy**2 + dz**2
     return dist**0.5 
 
 def MolCenter(atomListSub):
@@ -455,15 +484,17 @@ def MolCenter(atomListSub):
         center[1]=center[1]+atom[1][1]/nAtom
         center[2]=center[2]+atom[1][2]/nAtom
     return center
-def buildNeigh(atomList,cri):
+def buildNeigh(atomList,cri,L):
     dim = len(atomList)
     for i in range(dim):
         for j in range(i):
-            dist = calcDist(atomList[i],atomList[j])
+            dist = calcDistL(atomList[i],atomList[j],L)
             if(dist < cri):
                 atomList[i][2].append(j)
                 atomList[j][2].append(i)
     return atomList
+    
+
 
 def buildLinkMat(atomList,cri):
     dim = len(atomList)
@@ -504,14 +535,10 @@ def BlockInfoUpdate(BlockList,atomList):
         for i in rec[1]:
             atomListSub[j] = atomList[i-1]
             j = j+1
-        mat = np.array(buildLinkMatSub(atomListSub,1.6))
+        mat = np.array(buildLinkMatSub(atomListSub,1.69))
         rec[2]=atomListSub 
         rec[3]=abs(np.linalg.det(mat))**0.5
-       #if(math.isnan(rec[3])):
-       #    print("nananananan")
-       #    rec[3]= 777.777
         rec[4]=MolCenter(atomListSub)
-
 def SearchblockbyID(ID,blockList):
     n = len(blockList)
     first = 0
@@ -530,6 +557,9 @@ def printUnknowStruc(blockList,atmList):
     printed=[]
     for blk in blockList:
         grpN = blk[3]
+        if grpN > 1000.0:
+            continue
+
         inRec = False
         for rcd in GroupRec_dict:
             if abs(GroupRec_dict[rcd]-grpN)<0.00001:
@@ -539,10 +569,10 @@ def printUnknowStruc(blockList,atmList):
             if abs(Inter_dict[rcd]-grpN)<0.00001:
                 inRec = True
                 break
-        strGrp=format(grpN,".5f")
+        strGrp=format(grpN,".6f")
         if (not inRec) and ( not strGrp in printed):
             f = open("R"+strGrp+".xyz","w")
-            f = open("UnknowRec.txt","w")
+            #f = open("UnknowRec.txt","w")
             f.write(str(len(blk[2]))+"\n")
             f.write(strGrp+"\n")
             for atom in blk[2]:
@@ -564,6 +594,7 @@ def specCount(blockList,trackList):
             if(np.abs(line[3]-tracknum[i])<0.001):
                 Rec[i] = Rec[i] +1
     return(Rec)
+
 
 
 if __name__ == "__main__":
