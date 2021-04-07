@@ -7,6 +7,7 @@ def trackSpec(ftempnames,trackList):
     List = [["a" for i in range(1)] for i in range(len(trackList))]
     LastFrame = []
     # Open different files
+    step = 0
     for ftname in ftempnames:
         tempList = []
         print(ftname)
@@ -15,11 +16,13 @@ def trackSpec(ftempnames,trackList):
             tempList.extend(tl)
         for rec in tempList:
             i = 0
+            step = step +1
+            print(step)
             for itm in trackList:
                 for rcd in GroupRec_dict:
                     if abs(GroupRec_dict[rcd]-rec[itm][1])<0.00001 :
-                        if (rcd != List[i][-1]):
-                            List[i].append(rcd)
+                        if (rcd != List[i][-1][0]):
+                            List[i].append((rcd,step))
                 i = i+1
             LastFrame = rec
                 
