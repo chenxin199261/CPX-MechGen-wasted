@@ -103,11 +103,15 @@ def delTrans(ori,node,start,end,G,conjDic):
 #   Remove simple grey and red/blue transformation
 #
 ##############################
+
 def reaction_filter2(G,totrec,conjDic):
     rmList=[]
     for rec in totrec:
         if( len(rec[2]) == 0 or len(rec[3])==0):
             continue
+
+        if(rec[0] == "5982426591748898998"):
+            print(rec)
         #
         # Remove Grey Transformations
         #
@@ -119,7 +123,7 @@ def reaction_filter2(G,totrec,conjDic):
             for i in range(min( len(rec[2]),len(rec[3]) )):
                 # Go straight
                 # Wasted ?
-                if (rec[2][i][2]-rec[3][i][2] < 60 and
+                if (rec[2][i][2]-rec[3][i][2] < 65 and
                     rec[2][i][2]>rec[3][i][2] and
                       rec[3][i][1] == 'grey' and 
                       rec[2][i][1] == 'grey' and
@@ -128,15 +132,15 @@ def reaction_filter2(G,totrec,conjDic):
                     rmList_t.append( (rec[3][i][0],rec[0],rec[2][i][2],"straight") )
                     nstraight = nstraight + 1 
                        
-                if(i+1 > len(rec[2])-1 or i+1 > len(rec[3])-1):
+                if(i+1 > len(rec[2])-1):
                     break
                 # Go zigzag
                 # Redifine zigzag walk-path
-                if (rec[2][i+1][2]-rec[3][i][2] < 60 and
-                    rec[2][i+1][2] < rec[3][i+1][2] and
+                if (rec[2][i+1][2]-rec[3][i][2] < 65 and
+                    rec[2][i][2] < rec[3][i][2] and
                       rec[3][i][1] == 'grey' and 
-                      rec[2][i][1] == 'grey' and
-                      rec[3][i][0] == rec[2][i][0]):
+                      rec[2][i+1][1] == 'grey' and
+                      rec[3][i][0] == rec[2][i+1][0]):
                     nzigzag = nzigzag + 1
                     rmList_t.append( (rec[0],rec[3][i][0],rec[3][i][2],"zigzag" ) )
                     rmList_t.append( (rec[2][i+1][0],rec[0],rec[2][i+1][2],"zigzag" ) )
@@ -153,6 +157,8 @@ def reaction_filter2(G,totrec,conjDic):
                     if(itm[3] == "zigzag"):
                         rmList.append((itm[0],itm[1],itm[2]))
             '''
+            if(rec[0] == "5982426591748898998"):
+                print(rmList_t)
             for itm in rmList_t:
                     rmList.append((itm[0],itm[1],itm[2]))
 
@@ -164,7 +170,7 @@ def reaction_filter2(G,totrec,conjDic):
             rmList_t = []
             for i in range(min( len(rec[2]),len(rec[3]) )):
                  # Go straight
-                if (rec[2][i][2]-rec[3][i][2] < 60 and
+                if (rec[2][i][2]-rec[3][i][2] < 65 and
                     rec[2][i][2]>rec[3][i][2] and
                       rec[2][i][1] == 'grey' and 
                       rec[3][i][1] == 'grey' and
@@ -172,18 +178,20 @@ def reaction_filter2(G,totrec,conjDic):
                     rmList_t.append( (rec[2][i][0],rec[0],rec[2][i][2],"straight") )
                     rmList_t.append( (rec[0],rec[3][i][0],rec[3][i][2],"straight") )
                     nstraight = nstraight + 1 
-                if(i+1 > len(rec[2])-1 or i+1 > len(rec[3])-1):
+                if(i+1 > len(rec[2])-1):
                     break
                  # Go zigzag
                 # wasted ? 
-                if (rec[2][i+1][2]-rec[3][i][2] < 60 and
-                      rec[2][i+1][2] < rec[3][i+1][2] and
+                if (rec[2][i+1][2]-rec[3][i][2] < 65 and
+                      rec[2][i][2] < rec[3][i][2] and
                       rec[3][i][1] == 'grey' and 
                       rec[2][i+1][1] == 'grey' and
                       rec[3][i][0] == rec[2][i+1][0]):
                     rmList_t.append( (rec[0],rec[3][i][0],rec[3][i][2],"zigzag" ) )
                     rmList_t.append( (rec[2][i+1][0],rec[0],rec[2][i+1][2],"zigzag" ) )
                     nzigzag = nzigzag + 1
+            if(rec[0] == "5982426591748898998"):
+                print(rmList_t)
             for itm in rmList_t:
                 rmList.append((itm[0],itm[1],itm[2]))
 
@@ -201,13 +209,12 @@ def reaction_filter2(G,totrec,conjDic):
             for i in range(min( len(rec[2]),len(rec[3]) )):
                 #
                 # wasted ?
-                if (rec[2][i][2]-rec[3][i][2] < 60 and
-                    rec[2][i][2] > rec[3][i][2] and 
+                if (rec[2][i][2]-rec[3][i][2] < 65 and
+                    rec[2][i][2] > rec[3][i][2] and
                       rec[2][i][1] == 'blue' and 
                       rec[3][i][1] == 'red' and
                       rec[3][i][0] == rec[2][i][0]):
                     # remove the refer path 
-
 
                     # Remove Conj. path
                     conj_tag1 = '0'
@@ -230,11 +237,11 @@ def reaction_filter2(G,totrec,conjDic):
                         rmList_t.append( (conj_tag1,rec[3][i][0],rec[3][i][2],"straight") )
                     nstraight = nstraight + 1 
 
-                if(i+1 > len(rec[2])-1 or i+1 > len(rec[3])-1):
+                if(i+1 > len(rec[2])-1):
                     break
                     # Go zigzag
-                if (rec[2][i+1][2] - rec[3][i][2] < 60 and
-                    rec[2][i+1][2] < rec[3][i+1][2] and
+                if (rec[2][i+1][2] - rec[3][i][2] < 65 and
+                    rec[2][i][2] < rec[3][i][2] and
                       rec[3][i][1] == 'red' and 
                       rec[2][i+1][1] == 'blue' and
                       rec[3][i][0] == rec[2][i+1][0]):
@@ -262,6 +269,8 @@ def reaction_filter2(G,totrec,conjDic):
                         rmList_t.append( (rec[2][i+1][0],rec[0],rec[2][i+1][2],"zigzag" ) )
                         rmList_t.append( (conj_tag1,rec[3][i][0],rec[3][i][2],"zigzag" ) )
                         rmList_t.append( (rec[2][i+1][0],conj_tag1,rec[2][i+1][2],"zigzag" ) )
+            if(rec[0] == "5982426591748898998"):
+                print(rmList_t)
             for itm in rmList_t:
                 rmList.append((itm[0],itm[1],itm[2]))
                             
@@ -274,7 +283,7 @@ def reaction_filter2(G,totrec,conjDic):
             rmList_t = []
             for i in range(min( len(rec[2]),len(rec[3]) )):
                  # Go straight
-                if (rec[2][i][2]-rec[3][i][2] < 60 and
+                if (rec[2][i][2]-rec[3][i][2] < 65 and
                     rec[2][i][2]>rec[3][i][2] and 
                       rec[2][i][1] == 'blue' and 
                       rec[3][i][1] == 'red' and
@@ -298,18 +307,18 @@ def reaction_filter2(G,totrec,conjDic):
                         rmList_t.append( (rec[2][i][0],conj_tag1,rec[2][i][2],"straight") )
                         rmList_t.append( (conj_tag1,rec[3][i][0],rec[3][i][2],"straight") )
 
-                if(i+1 > len(rec[2])-1 or i+1 > len(rec[3])-1):
+                if(i+1 > len(rec[2])-1 ):
                     break
                 # Go zigzag
                 # wasted ?
-                if (rec[2][i+1][2]-rec[3][i][2] < 60 and
-                      rec[2][i+1][2] < rec[3][i+1][2] and
+                if (rec[2][i+1][2]-rec[3][i][2] < 65 and
+                      rec[2][i][2] < rec[3][i][2] and
                       rec[3][i][1] == 'red' and 
                       rec[2][i+1][1] == 'blue' and
-                      rec[3][i][0] == rec[2][i][0]):
+                      rec[3][i][0] == rec[2][i+1][0]):
                     for rec_conj in rec[5]:
                         # same step out-edge
-                        if(rec_conj[1] == rec[3][i+1][2]):
+                        if(rec_conj[1] == rec[3][i][2]):
                             conj_tag1 = rec_conj[0]
                             break
                     inList = G.in_edges(conj_tag1,data=True)
@@ -336,14 +345,14 @@ def reaction_filter2(G,totrec,conjDic):
                     if(itm[3] == "zigzag"):
                         rmList.append((itm[0],itm[1],itm[2]))
             '''
-
+            if(rec[0] == "5982426591748898998"):
+                print(rmList_t)
             for itm in rmList_t:
-                #if(itm[0] == '7189770200604126670' and itm[1]=='4189621075537437706'):
-                #    print(rec[0])
-                #    print("muhahahaha")
+
                 rmList.append((itm[0],itm[1],itm[2]))
     return(rmList)
-            
+
+
 def rmSinglenode(G):                                    
     RawNodeList = G.nodes()
     rmNodeList = []
@@ -378,7 +387,8 @@ def addKeyToRMlist(G,rmList):
 #
 #=================================
 
-if __name__ == 'main':
+if __name__ == '__main__':
+    print("main")
     G = nx.drawing.nx_pydot.read_dot("/home/xchen/Develop/CPX-MechGen/reactionGraph.data")
     G_t = copy.deepcopy(G)
 
@@ -386,17 +396,19 @@ if __name__ == 'main':
     
     print("total nodes in original graph: ",G_t.number_of_nodes())
     print("total edges in original graph: ",G_t.number_of_edges())
-    # 1.0 Build node information.
-    rec = buildBasicInfo(G_t)
-    Totrec,conjDic = getConjInfo(G_t,rec)
-    # 1.1 Remove redundant edges.
-    rmList = reaction_filter2(G_t,Totrec,conjDic)
-    rmList_UPD = addKeyToRMlist(G_t,rmList)
-    rmList_UPD = list(set(rmList_UPD))
-    G_t = rmEdgeList(G_t,rmList_UPD)
+    for i in range(3):
+        # 1.0 Build node information.
+        rec = buildBasicInfo(G_t)
+        Totrec,conjDic = getConjInfo(G_t,rec)
+        # 1.1 Remove redundant edges.
+        rmList = reaction_filter2(G_t,Totrec,conjDic)
+        rmList_UPD = addKeyToRMlist(G_t,rmList)
+        rmList_UPD = list(set(rmList_UPD))
+        G_t = rmEdgeList(G_t,rmList_UPD)
+
     rmSinglenode(G_t)
     print("total nodes in simple reduced graph: ",G_t.number_of_nodes())
     print("total edges in simple reduced graph: ",G_t.number_of_edges())
     print("reduced graph is stored in reduce.dot")
-    write_dot(Gout, "reduce.dot")
+    write_dot(G_t, "reduce.dot")
 # End of simple remove 
