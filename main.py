@@ -104,7 +104,7 @@ def delTrans(ori,node,start,end,G,conjDic):
 #
 ##############################
 
-def reaction_filter2(G,totrec,conjDic):
+def reaction_filter_simple(G,totrec,conjDic):
     rmList=[]
     for rec in totrec:
         if( len(rec[2]) == 0 or len(rec[3])==0):
@@ -381,6 +381,44 @@ def addKeyToRMlist(G,rmList):
             if(dicts[key]['label'].strip('\"' ) == str(itm[2])):
                 rmListUPD.append((itm[0],itm[1],itm[2],key))
     return(rmListUPD)
+
+def reaction_filter_reverseGrey(G,totrec,conjDic):
+    rmList=[]
+    rmLag = 200
+    for rec in totrec:
+        if( len(rec[2]) == 0 or len(rec[3])==0):
+            continue
+
+        rmList_t = []
+        for i in range(min( len(rec[2]),len(rec[3]) )):
+            # Go straight
+            # Wasted ?
+            if (rec[3][i][2]-rec[2][i][2] < rmLag and
+                rec[3][i][2]>rec[2][i][2] and
+                rec[3][i][1] == 'grey' and 
+                rec[2][i][1] == 'grey' and
+                rec[3][i][0] == rec[2][i][0]):
+                
+                rmList_t.append( (rec[0],rec[3][i][0],rec[3][i][2],"straight") )
+                rmList_t.append( (rec[2][i][0],rec[0],rec[2][i][2],"straight") )
+                       
+            if(i+1 > len(rec[3])-1):
+                break
+                
+                # Go zigzag
+                # Redifine zigzag walk-path
+            if (rec[3][i+1][2]-rec[2][i][2] < rmLag and
+                rec[3][i][2] < rec[2][i][2] and
+                rec[2][i][1] == 'grey' and 
+                rec[3][i+1][1] == 'grey' and
+                rec[2][i][0] == rec[3][i+1][0]):
+                
+                rmList_t.append( (rec[0],rec[3][i+1][0],rec[3][i+1][2],"zigzag" ) )
+                rmList_t.append( (rec[2][i][0],rec[0],rec[2][i][2],"zigzag" ) )
+            for itm in rmList_t:
+                rmList.append((itm[0],itm[1],itm[2]))
+                
+    return(rmList)
                 
 #=================================
 # Program Control
@@ -401,10 +439,20 @@ if __name__ == '__main__':
         rec = buildBasicInfo(G_t)
         Totrec,conjDic = getConjInfo(G_t,rec)
         # 1.1 Remove redundant edges.
-        rmList = reaction_filter2(G_t,Totrec,conjDic)
+        rmList = reaction_filter_simple(G_t,Totrec,conjDic)
         rmList_UPD = addKeyToRMlist(G_t,rmList)
         rmList_UPD = list(set(rmList_UPD))
         G_t = rmEdgeList(G_t,rmList_UPD)
+
+        # 2.0 Build node information.
+        rec = buildBasicInfo(G_t)
+        Totrec,conjDic = getConjInfo(G_t,rec)
+        # 2.1 Remove redundant edges.
+        rmList = reaction_filter_reverseGrey(G_t,Totrec,conjDic)
+        rmList_UPD = addKeyToRMlist(G_t,rmList)
+        rmList_UPD = list(set(rmList_UPD))
+        G_t = rmEdgeList(G_t,rmList_UPD)
+
 
     rmSinglenode(G_t)
     print("total nodes in simple reduced graph: ",G_t.number_of_nodes())
